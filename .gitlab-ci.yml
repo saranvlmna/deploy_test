@@ -1,11 +1,21 @@
+image:
+  name: alpine:latest
 stages:
-  - test
-test:
-  stage: test
-  image: node:14        # You can specify the Node.js version you want to use
-  script:
-    - npm install       # Install the dependencies
-    # - npm test          # Run your tests (make sure you have a 'test' script in package.json)
-    
+  - build
+before_script:
+  - mkdir -p ~/.ssh
+  - "which ssh-agent || ( apk add openssh )"
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+build:development:
+  stage: build
   only:
-    - main            # This ensures the pipeline runs only on the master branch
+    - main
+  script:
+    - echo "Build starting.."
+    - apk update
+    - apk add rsync
+    - rsync --version
+    - rsync -av -r ./* ubuntu@54.165.107.96:server/deploy_test
+    - ssh ubuntu@54.165.107.96 'cd "server/deploy_test" && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api  -f ./docker-compose.dev.yml up --build -d'
