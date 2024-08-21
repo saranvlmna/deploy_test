@@ -1,26 +1,35 @@
+# Use the latest Alpine Linux image as the base for the CI job.
 image:
   name: alpine:latest
 
+# Define the stages of the pipeline. In this case, there is only one stage: build.
 stages:
   - build
 
+# before_script is executed before any job's script in the pipeline.
 before_script:
-  - mkdir -p ~/.ssh
-  - "which ssh-agent || ( apk add openssh )"
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  - ssh-add -l # This will list all the loaded keys
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - mkdir -p ~/.ssh # Create the .ssh directory if it doesn't exist.
+  - "which ssh-agent || ( apk add openssh )" # Check if ssh-agent is installed, if not, install openssh.
+  - eval $(ssh-agent -s) # Start the ssh-agent in the background.
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null # Add the private SSH key to the ssh-agent.
+  - ssh-add -l # List all the loaded SSH keys to verify the key was added successfully.
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config' 
+    # If running inside Docker, disable strict host key checking to avoid SSH host verification issues.
 
+# Define the build job that will be executed during the build stage.
 build:development:
-  stage: build
+  stage: build # Specify the stage to which this job belongs.
   only:
-    - main
+    - main # Run this job only when changes are pushed to the 'main' branch.
   script:
-    - echo "Build starting.."
-    - apk update
-    - apk add rsync
-    - rsync --version
-    - ssh ubuntu@54.165.107.96 'mkdir -p /home/ubuntu/server/deploy_test'
-    - rsync -av -r ./* ubuntu@54.165.107.96:/home/ubuntu/server/deploy_test
+    - echo "Build starting.." # Print a message indicating the build is starting.
+    - apk update # Update the Alpine package index to ensure the latest package versions.
+    - apk add rsync # Install rsync for file synchronization.
+    - rsync --version # Display the version of rsync to verify it was installed correctly.
+    - ssh ubuntu@54.165.107.96 'mkdir -p /home/ubuntu/server/deploy_test' 
+      # SSH into the remote server and create the target directory if it doesn't exist.
+    - rsync -av -r ./* ubuntu@54.165.107.96:/home/ubuntu/server/deploy_test 
+      # Sync all files from the current directory to the target directory on the remote server.
     - ssh ubuntu@54.165.107.96 'cd /home/ubuntu/server/deploy_test && docker build -t deploytest -f Dockerfile . && docker run -d --name deploy_test deploytest'
+      # SSH into the remote server, navigate to the target directory, build the Docker image with the tag 'deploytest', 
+      # and then run a container from that image with the name 'deploy_test'.
