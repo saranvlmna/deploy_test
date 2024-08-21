@@ -20,4 +20,4 @@ build:development:
     - rsync --version
     - ssh ubuntu@54.165.107.96 'mkdir -p /home/ubuntu/deploy_test' # Ensure the directory exists
     - rsync -av -r ./* ubuntu@54.165.107.96:/home/ubuntu/deploy_test
-    - ssh ubuntu@54.165.107.96 'cd /home/ubuntu/deploy_test && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api -f ./docker-compose.dev.yml up --build -d'
+    - ssh ubuntu@54.165.107.96 'cd /home/ubuntu/deploy_test && docker build -t deploy_test -f Dockerfile . && docker run -d --name deploy_test deploy_test'
