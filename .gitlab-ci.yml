@@ -6,7 +6,8 @@ before_script:
   - mkdir -p ~/.ssh
   - "which ssh-agent || ( apk add openssh )"
   - eval $(ssh-agent -s)
-  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - ssh-add -l # This will list all the loaded keys
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
 build:development:
   stage: build
