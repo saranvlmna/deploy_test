@@ -1,0 +1,10 @@
+stages:
+  - test
+test:
+  stage: test
+  image: node:14        # You can specify the Node.js version you want to use
+  script:
+    - npm install       # Install the dependencies
+    - npm test          # Run your tests (make sure you have a 'test' script in package.json)
+  only:
+    - main            # This ensures the pipeline runs only on the master branch
