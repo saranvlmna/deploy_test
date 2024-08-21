@@ -18,5 +18,5 @@ build:development:
     - apk update
     - apk add rsync
     - rsync --version
-    - rsync -av -r ./* root@54.165.107.96:server/deploy_test
-    - ssh root@54.165.107.96 'cd "server/deploy_test" && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api  -f ./docker-compose.dev.yml up --build -d'
+    - rsync -av -r ./* ubuntu@54.165.107.96:server/deploy_test
+    - ssh ubuntu@54.165.107.96 'cd "server/deploy_test" && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api  -f ./docker-compose.dev.yml up --build -d'
