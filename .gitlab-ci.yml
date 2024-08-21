@@ -1,7 +1,9 @@
 image:
   name: alpine:latest
+
 stages:
   - build
+
 before_script:
   - mkdir -p ~/.ssh
   - "which ssh-agent || ( apk add openssh )"
@@ -9,6 +11,7 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - ssh-add -l # This will list all the loaded keys
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
 build:development:
   stage: build
   only:
@@ -20,4 +23,4 @@ build:development:
     - rsync --version
     - ssh ubuntu@54.165.107.96 'mkdir -p /home/ubuntu/server/deploy_test'
     - rsync -av -r ./* ubuntu@54.165.107.96:/home/ubuntu/server/deploy_test
-    - ssh 'cd /home/ubuntu/server/deploy_test && docker build -t /home/ubuntu/server/deploy_test -f Dockerfile . && docker run -d --name deploy_test deploytest'
+    - ssh ubuntu@54.165.107.96 'cd /home/ubuntu/server/deploy_test && docker build -t deploytest -f Dockerfile . && docker run -d --name deploy_test deploytest'
