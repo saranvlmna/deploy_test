@@ -19,4 +19,5 @@ build:development:
     - apk add rsync
     - rsync --version
     - rsync -av -r ./* ubuntu@54.165.107.96:server/deploy_test
-    - ssh -v ubuntu@54.165.107.96 'cd "server/deploy_test" && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api  -f ./docker-compose.dev.yml up --build -d'
+    - echo "Debugging SSH connection..."
+    - ssh -vvv ubuntu@54.165.107.96 'cd "server/deploy_test" && DOCKER_NETWORK_ALIAS=deploy_test DOCKER_ENV_FILE=/root/deploy_test/env.d/.env.api docker compose --env-file /root/deploy_test/env.d/.env.api -f ./docker-compose.dev.yml up --build -d'
