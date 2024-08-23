@@ -26,7 +26,7 @@ build:development:
     - apk update # Update the Alpine package index to ensure the latest package versions.
     - apk add rsync # Install rsync for file synchronization.
     - rsync --version # Display the version of rsync to verify it was installed correctly.
-    - ssh ubuntu@54.165.107.96 'mkdir -p /home/ubuntu/servers/deploy_test' 
+    - ssh ubuntu@54.165.107.96 'docker stop deploy_test || true && docker rm deploy_test || true'
       # SSH into the remote server and create the target directory if it doesn't exist.
     - rsync -av -r ./* ubuntu@54.165.107.96:/home/ubuntu/servers/deploy_test 
       # Sync all files from the current directory to the target directory on the remote server.
